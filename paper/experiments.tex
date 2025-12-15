@@ -1,0 +1,40 @@
+% In this section, you should describe your experimental setup. What
+% were the questions you were trying to answer? What was the
+% experimental setup (number of trials, parameter settings, etc.)? What
+% were you measuring? You should justify these choices when
+% necessary. The accepted wisdom is that there should be enough detail
+% in this section that I could reproduce your work \emph{exactly} if I
+% were so motivated.
+
+
+\section{Experiments}
+\label{sec:expts}
+
+In this section, we outline our experiments for our data and models. 
+
+\subsection{Initial models}
+\textbf{Random Forests - Initial}\\
+For the initial Random Forest experiment, we trained a \texttt{RandomForestClassifier} consisting of 200 decision trees. The model was configured with no explicit maximum depth, while restricting tree growth using a minimum of five samples required to split an internal node and a minimum of two samples per leaf. To account for class imbalance, balanced class weights were applied during training. Prior to fitting the model, all features were scaled using Min–Max scaling to ensure a consistent feature range. The model was then trained on the training split and evaluated on the held-out test set using predicted class labels\\
+\textbf{KNN}\\
+For the K-Nearest Neighbors experiment, we trained a KNN classifier with \(k = 7\) using distance-based weighting, where closer neighbors have a stronger influence on the predicted class. The Minkowski distance metric was used to measure similarity between samples. Because KNN is sensitive to feature scale, the data was scaled prior to training, and the model was trained on the scaled training set. Predictions were then generated on the scaled test set for evaluation.\\
+\textbf{SVM Linear }\\
+For the initial Support Vector Machine experiment, we trained a linear SVM using the \texttt{LinearSVC} implementation. The regularization parameter was set to \(C = 1.0\), and balanced class weights were applied to address class imbalance. Prior to training, all features were scaled using Min–Max scaling to ensure comparable feature ranges, which is particularly important for margin-based classifiers. The model was trained on the scaled training set, and predictions were generated on the scaled test set for evaluation.
+
+\subsection{Final models}
+\textbf{Random Forests - Final}\\
+For the final Random Forest experiment, we trained a more complex ensemble model and performed systematic hyperparameter tuning using grid search. The model was evaluated over a parameter grid that varied the number of trees, maximum depth, minimum samples required for splits and leaves, feature selection strategy, and class weighting. Five-fold stratified cross-validation was used to preserve class proportions across folds, and macro-averaged F1 score was selected as the scoring metric during cross-validation. Prior to training, all features were standardized using a \texttt{StandardScaler}. The best-performing model from the grid search was then retrained on the training set and used to generate predictions on the held-out test set.\\
+\textbf{Ada Boost}\\
+For the final boosting experiment, we trained an AdaBoost classifier using decision trees as weak learners. Each base estimator was a decision tree constrained to a maximum depth of six with a minimum of three samples per leaf to limit overfitting. The ensemble consisted of 300 estimators and used a learning rate of 0.5 to control the contribution of each weak learner. Prior to training, all features were standardized using a \texttt{StandardScaler} to ensure comparable feature scales across inputs. The model was trained on the standardized training set and evaluated by generating predictions on the held-out test set.\\
+\textbf{SVM - RBF Kernel }\\
+For the final kernel-based experiment, we trained a Support Vector Machine with a radial basis function (RBF) kernel. The regularization parameter was set to \(C = 1.0\), and the kernel coefficient was determined using the default \texttt{gamma="scale"} setting. To address class imbalance, balanced class weights were applied during training. Prior to fitting the model, all features were standardized using a \texttt{StandardScaler}, as SVMs are sensitive to feature magnitude. The model was trained on the standardized training set and predictions were generated on the standardized test set for evaluation.
+
+\subsection{Standardized Data Set experiment}
+For the final experiment, we constructed a new dataset in which character features were standardized \emph{within each individual game} rather than across the dataset as a whole. For each game, character attributes were scaled using z-score normalization, and the resulting standardized values were then combined across all games to form the final dataset. This approach preserves relative differences between characters within the same game while reducing the effect of cross-game variability. 
+
+As mentioned earlier in Data Exploration, certain games had features of different scales, where one game might have a stat at a range higher than another game. One method of counteracting this was by also including the game feature, which helps distinguish feature ranges based on the game variable. However, one issue with this is that by including the game itself, the model could 'cheat' and predict gender just based on the game. Since \textit{Dota 2} is mostly male, by passing in a value of 1 for the \textit{Dota} feature it might make the model more likely to predict male. This also meant that were able to remove the game features, as all values were standardized based on distance from the mean within their own game. 
+
+Since the Support Vector Machine with an RBF kernel was the best-performing model in earlier experiments, we selected this model for the final evaluation. The dataset was split into training and test sets using an 80–20 split. Prior to training, features were again standardized using a \texttt{StandardScaler}. The SVM was trained with balanced class weights and evaluated by generating predictions on the standardized test set.
+
+\subsection{Evaluation Metrics}
+%change desc
+In order to evaluate our models, we primarily focused on the classification report package from sklearn, looking at the actual versus predicted classifications. In this report, we also recorded the accuracy, precision, recall, and F1 score. For all models, we used the weighted F1 scores, recall, and precision, in order to weigh the averages across class predictions and be a fair and representative measure. We also recorded the prediction results for each example, looking to see what characters were correctly or incorrectly classified across the different models. 

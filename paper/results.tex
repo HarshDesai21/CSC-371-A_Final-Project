@@ -1,0 +1,134 @@
+
+\section{Results}
+\label{sec:results}
+
+% Present the results of your experiments. Simply presenting the data is
+% insufficient! You need to analyze your results. What did you discover?
+% What is interesting about your results? Were the results what you
+% expected? Use appropriate visualizations. Prefer graphs and charts to
+% tables as they are easier to read (though tables are often more
+% compact, and can be a better choice if you're squeezed for space).
+
+In this section, we describe the results and performance of our models, including best hyperparameters and the resulting classification reports and confusion matrices. 
+
+\subsection{Initial Model Results}
+
+The initial results across models can be viewed in Table \ref{tab:init_results}.
+
+\textbf{Random Forest Model:}
+
+The Random Forest model achieved an overall accuracy of 0.64, with a weighted F1 score of 0.62. The model performed well on the majority class (class 0), achieving high recall (0.82) and strong precision (0.69), indicating that it was effective at correctly identifying male characters. However, performance on the minority class (class 1) was notably weaker, with a recall of only 0.30 and an F1 score of 0.36. This suggests that while the Random Forest model captured dominant patterns in the data, it struggled to generalize to less frequent outcomes (female characters), reflecting sensitivity to class imbalance.
+
+\textbf{K-Nearest Neighbors:}
+
+The K-Nearest Neighbors (KNN) model achieved an accuracy of 0.66 and a weighted F1 score of 0.63. Similar to Random Forest, KNN performed well on class 0 (male characters), with a recall of 0.83 and precision of 0.70. KNN demonstrated slightly improved performance on the minority class compared to Random Forest, with higher precision (0.50) and F1 score (0.39). This suggests that the KNN's distance-based classification was somewhat more effective at capturing local patterns relevant to the stats of female characters, though recall for male character predictions remained relatively low.
+
+\textbf{Linear SVM:}
+
+The Linear SVM model had an accuracy of 0.62 and a weighted F1 score of 0.62. Although its overall accuracy was lower than that of Random Forest and KNN, the Linear SVM demonstrated noticeably stronger recall for the minority class (0.50). This improvement in minority-class recall indicates that the model was better able to identify female characters, which is a critical objective in our task. However, this gain came at the cost of reduced performance on the majority class, suggesting that a strictly linear decision boundary limited the model’s ability to separate the classes effectively.
+
+\textbf{Comparative Analysis of Initial Models:}
+
+While KNN achieved the highest overall accuracy among the initial models, its recall on the minority class remained low, indicating limited effectiveness in identifying underrepresented outcomes. Random Forest similarly favored the majority class, achieving strong recall for male characters but struggling to correctly classify female characters. In contrast, the Linear SVM demonstrated the highest minority-class recall among the initial models, despite lower overall accuracy. Since recall of the minority class (female characters) is important in this project, as we want to be able to accurately predict characters regardless of gender, using SVMs and margin-based estimators would be best for our goals. Because of this, we decided on continuing with the SVM model instead of KNN in our next section, adding the RBF kernel. 
+
+\begin{table}[h]
+\centering
+\caption{Resulting performance metrics across our Initial Models. Precision, recall and F1 score represent weighted averages.}
+\begin{tabular}{lll}
+\hline
+\textbf{Model} & \textbf{Measure} & \textbf{Score}  \\
+\hline
+\multirow{3}{*}{Random Forest} 
+ & Accuracy & 0.64 \\
+ & Precision & 0.61 \\
+ & Recall & 0.64 \\
+ & F1 Score & 0.62 \\
+\hline
+\multirow{3}{*}{K-Nearest Neighbors} 
+ & Accuracy & 0.66 \\
+ & Precision & 0.63 \\
+ & Recall & 0.66 \\
+ & F1 Score & 0.63 \\
+\hline
+\multirow{3}{*}{Linear SVM} 
+    & Accuracy & 0.62 \\
+ & Precision & 0.63 \\
+ & Recall & 0.62 \\
+ & F1 Score & 0.62 \\
+\hline
+\end{tabular}
+\label{tab:init_results}
+\end{table}
+
+\subsection{Tuned/Final Model Results}
+
+Our tuned model results can be found in Table \ref{tab:final_results}.
+
+\textbf{Random Forest (Tuned via Cross-Validation):}
+
+After hyperparameter tuning using cross-validation, the Random Forest model achieved an accuracy of 0.66 and a weighted F1 score of 0.62. Our best hyperparameters had the model using bootstrapping, balanced class weights, no max depth, using log2 max features, having a minimum leaf split of 2 and minimum sample split of 5, and using 300 estimators. 
+
+Performance on the majority class (male characters) remained strong, with a recall of 0.86, indicating improved identification compared to the initial Random Forest model. However, recall for the minority class remained low at 0.27, showing that while this model improved overall accuracy and majority-class performance, it didn't improve predictions for female characters and classifying underrepresented examples. 
+
+\textbf{SVM with RBF Kernel (Class-Weighted, Non-Standardized Data):}
+
+The class-weighted SVM with an RBF kernel trained on the non-standardized dataset achieved an accuracy of 0.62 and a weighted F1 score of 0.63. Notably, this model attained the highest recall for female characters (0.57) among all evaluated models, demonstrating a significant improvement over both the tuned Random Forest and AdaBoost. While this came at the cost of reduced recall for the majority class (0.65), this model had the best overall balance and predictions between the two classes. This further supports that nonlinear decision boundaries combined with class weighting are effective in addressing class imbalance.
+
+\textbf{SVM with RBF Kernel (Class-Weighted, Standardized Data):}
+
+When trained on the standardized dataset, the class-weighted RBF SVM achieved a slightly higher accuracy of 0.63 and the highest weighted F1 score (0.64) among the tuned models. Minority-class recall remained high at 0.57, matching the non-standardized version, while precision for the majority class improved slightly. These results indicate that feature standardization provided marginal overall performance gains without compromising the model’s ability to identify minority-class instances, reinforcing the robustness of the RBF SVM approach.
+
+The confusion matrix of results can be found in Figure \ref{fig:svm_cm}.
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=\linewidth]{template/figs/svm_cm.png}
+    \caption{Confusion matrix for RBF SVM, using the standardized dataset.}
+    \label{fig:svm_cm}
+\end{figure}
+
+\textbf{AdaBoost:}
+
+The AdaBoost model achieved an accuracy of 0.66 and a weighted F1 score of 0.64, making it competitive with the best-performing tuned models in terms of overall metrics. While AdaBoost improved minority-class recall to 0.36 compared to Random Forest, it still fell short of the recall achieved by the RBF SVM models. This suggests that although boosting improved class balance relative to tree-based methods, it was less effective than margin-based nonlinear classifiers in prioritizing minority-class detection.
+
+The confusion matrix of results can be found in Figure \ref{fig:ada_cm}.
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=\linewidth]{template/figs/ada_cm.png}
+    \caption{Confusion matrix for AdaBoost model.}
+    \label{fig:ada_cm}
+\end{figure}
+
+\begin{table}[h]
+\centering
+\caption{Resulting performance metrics across our tuned, final models. Precision, recall, and F1 score represent weighted averages.}
+\begin{tabular}{lll}
+\hline
+\textbf{Model} & \textbf{Measure} & \textbf{Score}  \\
+\hline
+\multirow{4}{*}{Random Forest (Tuned)} 
+ & Accuracy & 0.66 \\
+ & Precision & 0.63 \\
+ & Recall & 0.66 \\
+ & F1 Score & 0.62 \\
+\hline
+\multirow{4}{*}{RBF SVM (Non-Standardized)} 
+ & Accuracy & 0.62 \\
+ & Precision & 0.65 \\
+ & Recall & 0.62 \\
+ & F1 Score & 0.63 \\
+\hline
+\multirow{4}{*}{RBF SVM (Standardized)} 
+ & Accuracy & 0.63 \\
+ & Precision & 0.65 \\
+ & Recall & 0.63 \\
+ & F1 Score & 0.64 \\
+\hline
+\multirow{4}{*}{AdaBoost} 
+ & Accuracy & 0.66 \\
+ & Precision & 0.64 \\
+ & Recall & 0.66 \\
+ & F1 Score & 0.64 \\
+\hline
+\end{tabular}
+\label{tab:final_results}
+\end{table}

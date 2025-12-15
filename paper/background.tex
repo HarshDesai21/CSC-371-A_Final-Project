@@ -1,0 +1,79 @@
+% Describe any background \cite{aima} nformation that the reader would need to know
+% to understand your work. You do not have to explain algorithms or
+% ideas that we have seen in class. Rather, use this section to describe
+% techniques that you found elsewhere in the course of your research,
+% that you have decided to bring to bear on the problem at hand. Don't
+% go overboard here --- if what you're doing is quite detailed, it's
+% often more helpful to give a sketch of the big ideas of the approaches
+% that you will be using. You can then say something like ``the reader
+% is referred to X for a more in-depth description of...'', and include
+% a citation.\\
+
+% This section is also a good place to describe any data pre-processing
+% or feature engineering you may have performed. If you are \emph{only}
+% discussing data wrangling in this section, it's recommended that you
+% amend the title of the section to ``Data Preparation'' or something
+% similar; otherwise, use subsections to better organize the flow.
+
+\section{Background}
+\label{sec:background}
+
+Existing work analyzing gender in video games has done so largely in looking at either gaming communities or the character content found in video games, such as qualitative analysis. Still, several studies have pointed out gender disparities or differences in video game worlds, characters, and the industry. Miller analyzed gender roles in video games and advertisement in magazines, and found that male characters were more likely to be playable and the heroes of the game, whereas female characters were often sidelined and support characters \cite{miller2007gender}. Men also were displayed as more muscular and powerful, while women were more attractive with revealing clothing. More recent work analyzed job and occupational roles in the fictional world of Azeroth, the world in the video game \textit{World of Warcraft}. In this study, Sengun et al. found that more male non-playable characters (NPCs) made up the blue collar workforce, with jobs such as mining and blacksmithing \cite{sengun2021azeroth}. In fact, almost every occupational field was predominately male, with exceptions of archaeology and herbalism having more female NPCs. These NPCs are not chosen by players, but instead designed by the developers of the game. Lastly, in looking at the gaming industry, Bailey et al. recorded the gender composition of development teams of the top selling video games from 2001-2017. For all of these games, the main playable character was male, and in 2001 and 2017 and found no examples where a woman was the main playable character \cite{bailey2021gender}. In fact, there were no playable female characters in 69\% of the selected games. In the development teams themselves, there were gender differences in the types of roles, such as creative or leadership. \textit{Final Fantasy XV} (2015) had a 13\% female development team, but there were significant differences between categories like audio design (36\% female), compared to game design (11\% female) and programming (0\% female).
+
+Overall, several works identify different aspects of gender disparities or differences in video games. However, there is little work done to predict the gender of fictional video game characters based on stats. This project serves as a novel approach towards analyzing gender in video games, instead testing whether Machine Learning classification algorithms can pick up on subtle design differences of characters and accurately predict character gender, and highlighting how there may be embedded gender differences in game and character design. 
+
+\subsection{Data Exploration}
+
+In this section, we detail the methods that were used to build and clean the dataset, as well as explaining the features. 
+
+First, five Multiplayer Online Battleground Arena (MOBA) games were selected based on the top watched games on Twitch, an online streaming platform, from January to August of 2025. Games considered for analysis, in order of viewership from high to low: \textit{League of Legends}, \textit{Dota 2}, \textit{Mobile Legends: Bang Bang}, \textit{Deadlock}, \textit{Brawl Stars}, \textit{Smite 2}, \textit{Eternal Return}, \textit{Heroes of the Storm}, and \textit{Pokémon Unite}. In order to fit the criteria, the games had to have characters that were predominantly humanoid, and have gameplay that is 'characteristic' of a MOBA. For this reason, the final selection of games were \textit{League}, \textit{Dota}, \textit{Mobile Legends}, \textit{Smite}, and \textit{Heroes}. The first \textit{Smite} game was selected in place of \textit{Smite 2}, as the sequel is currently in an open beta phase and the full game has not been released. 
+
+Data was scraped online in early August from several fandom wikis containing updated character stats and attributes, using Python and BeautifulSoup html parsers \cite{LoLWiki_Champions,dotadata,smite,mobilelegends,heroes}. This resulted in five raw datasets, with each character having a column with their respective stats from the online sources. In order to classify gender, student researchers consulted the official websites of each game to read the pronouns used to describe each character. Characters with descriptions, or abilities, using he/him/his pronouns were classified as men (0), and characters with she/her/hers pronouns were classified as women (2). Characters not having deliberate pronouns or using 'it' were classified as 'other' (1). 
+
+After looking at the raw datasets, there were several steps taken in order to clean and standardize the data between games. Since each MOBA has slightly different mechanisms, some stats and gameplay elements function differently, so we had to be deliberate in how we matched different features between games and merged them together. We removed features that were unique to one game and could not be related to an equivalent feature from other game, such as Attack Backswing from \textit{Dota 2}, or Unit Radius from \textit{League}. The datasets were merged together with the following features:
+\begin{itemize}
+    \item \textbf{Name:} The name of the character.
+    \item \textbf{Game:} The game the character is from. One-hot encoded to five separate binary features (League, Dota, Mobile Legends, Heroes, Smite).
+    \item \textbf{HP and HP/lvl:} Health points of the character, and health points gained per level up.
+    \item \textbf{HP Regen HP Regen/lvl:} Health regeneration rate of the character, and health regeneration rate gained per level up.
+    \item \textbf{Mana and Mana/lvl:} Mana points of the character, and mana points gained per level up.
+     \item \textbf{Mana Regen and Mana Regen/lvl:} Mana regeneration rate, and regeneration rate gained per level up.
+    \item \textbf{Armor and Armor/lvl:} Physical defense/resistance, and physical defense gained per level.
+    \item \textbf{Magic Res and MR/lvl:} Magical defense/resistance, and resistance gained per level.
+    \item \textbf{Attack Damage and AD/lvl:} Strength/damage of each auto attack, damage gain per level. 
+    \item \textbf{Attack Damage and AD/lvl:} Strength/damage of each auto attack, damage gain per level.
+    \item \textbf{Attack Damage and AD/lvl:} Strength/damage of each auto attack, damage gain per level. 
+    \item \textbf{Base Attack Speed and Attack Speed/lvl:} the amount of attacks per second or attack speed stat, and speed gained per level.
+    \item \textbf{Attack Range:} Distance/range of the auto attack.
+    \item \textbf{Move Speed:} Movement speed of the character.
+    \item \textbf{Price Free/Price Paid:} Price to purchase/unlock the character. Free refers to the price using free currency (rewards for gameplay), paid refers to the price using paid currency (purchasable in microtransactions). 
+    \item \textbf{Difficulty:} Difficulty of the character's gameplay and toolkit.
+    \item \textbf{Melee/Ranged:} Two binary features, whether the character uses melee or ranged attacks. A character can have both melee and ranged attacks.
+    \item \textbf{Mana Resource:} Binary feature, whether the character uses Mana as a resource for their attacks.
+    \item \textbf{Support:} Binary feature, whether the character has a support role.
+    
+\end{itemize}
+
+In total, there are 30 features, as well as the name of the character, and their gender. Once these features were established, we had to clean the entire dataset to check for null values and fill in missing columns. Some sources that were scraped had incomplete data for some features that required additional searching and verification, or more creative interpretations to fill in the data. For example, in \textit{Dota 2}, some level up stats (HP/lvl, HP regen/lvl, mana/lvl, etc.) were not on the Wiki page. Instead, we found that Dota growth stats were dependent on a character's Agility, Intelligence, or Strength stats, which were collected in the raw datasets. By applying the growth formulas (found online), we were able to derive several features to fill in the data. Another example is that characters in \textit{Heroes of the Storm} do not have a defense stat, meaning the armor and magic resistance features were zeroes for the most part. However, a few characters had mechanics that reduced incoming damage by a certain percent, which was added to the data. When we encountered an issue with the data, such as a missing or inconsistent value, we repeated the basic procedure of looking up details about the game's mechanism for that stat, and used reputable sources to fill in the data to be as accurate as possible. 
+
+In addition, we did some feature engineering to create the melee/ranged, mana resource, and support binary variables. These were based on some features that existed in the raw datasets, such as Resource Type or Role, that were too complicated to collapse. Roles between the games differed greatly, yet is an important feature we wanted to capture, so we created a Support binary variable, since all games have characters that can play Support roles. Also, when merging the datasets, we made note of the different scales in stats between games. In \textit{League}, character HP stats range around 500-700, whereas in \textit{Mobile Legends} the range is around 2500-3000. There are different scales between the games for several of the features, which we take into consideration in our experiments section.
+
+The end goal of this project is to predict the target variable of Gender. For simplicity, we are only predicting whether the character is a man (0) or woman (1). In total, there were 648 character examples in the initial dataset. However, there were 8 characters in the list that had either multiple genders (more than 1 character), or no gender assigned (such as an entity). These non-gendered characters were Fiddlesticks, Kindred, Io, Jakiro, Phoenix, Puck, Techies, and Jawhead, and they were removed from analysis. This resulted in 640 total characters, with 169 from \textit{League of Legends}, 121 from \textit{Dota 2}, 130 from \textit{Smite}, 128 from \textit{Mobile Legends: Bang Bang}, and 92 from \textit{Heroes of the Storm}. The full distribution can be viewed in Figure \ref{fig:gamedist}.
+
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=\linewidth]{template/figs/game_dist.png}
+    \caption{Distribution of characters per game}
+    \label{fig:gamedist}
+\end{figure}
+
+While there is a relatively equal split between the games, their is a slight imbalance in the gender split. Of the 640 examples, 425 (66.4\%) are men, in comparison to 215 being women (33.6\%), as shown in Figure \ref{fig:gender}. There are more male characters than female characters in all five games, most notably in Dota 2, where 97 of the 121 characters are male (80.2\%). On the other hand, the most balanced gender split was in League of Legends, with 101 of 169 being men (59.8\%) and 68 being women (40.2\%). 
+
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=\linewidth]{template/figs/gender_dist.png}
+    \caption{Distribution of the gender target feature.}
+    \label{fig:gender}
+\end{figure}
+
+
